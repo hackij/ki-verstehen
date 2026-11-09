@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KI verstehen – die Basics</title>
+<meta name="description" content="Interaktiver Einstieg: Wie funktioniert generative KI – und wo liegen Chancen und Grenzen?">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{--c1:#004f9f;--c2:#d6001c;--c3:#7fa7d6;--ink:#1b2430;--muted:#5b6675;--ok:#1a9e5c;--warn:#d98a00;--glass:rgba(255,255,255,.58);--line:rgba(255,255,255,.75)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:#eef2f8;min-height:100vh;overflow-x:hidden;line-height:1.5}
+.blob{position:fixed;border-radius:50%;filter:blur(70px);z-index:-1;animation:float 18s ease-in-out infinite alternate}
+.b1{width:480px;height:480px;background:var(--c1);top:-160px;left:-140px;opacity:.45}
+.b2{width:380px;height:380px;background:var(--c2);bottom:-140px;right:-100px;opacity:.32;animation-delay:-6s}
+.b3{width:340px;height:340px;background:var(--c3);top:40%;left:55%;opacity:.5;animation-delay:-12s}
+@keyframes float{to{transform:translate(40px,30px) scale(1.08)}}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 40px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{width:54px;height:54px;border-radius:16px;background:linear-gradient(145deg,#1a66b8,var(--c1));display:grid;place-items:center;box-shadow:0 8px 20px rgba(0,79,159,.35),inset 0 1px 0 rgba(255,255,255,.35)}
+.logo svg{width:40px;height:40px}
+h1{font-size:28px;letter-spacing:-.02em;line-height:1.1}
+.kicker{color:var(--muted);font-weight:600;font-size:13px;letter-spacing:.03em}
+.sub{color:var(--muted);font-size:14px;max-width:420px}
+.glass{background:var(--glass);backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);border:1px solid var(--line);border-radius:24px;box-shadow:0 10px 30px rgba(20,40,80,.10),inset 0 1px 0 rgba(255,255,255,.85)}
+nav{display:flex;gap:6px;padding:6px;flex-wrap:wrap;margin-bottom:18px}
+nav button{flex:1 1 auto;border:0;background:transparent;padding:10px 14px;border-radius:17px;font-weight:600;font-size:14px;font-family:inherit;color:var(--muted);cursor:pointer;transition:.2s}
+nav button:hover{color:var(--c1)}
+nav button.on{background:#fff;color:var(--c1);box-shadow:0 4px 14px rgba(0,79,159,.15)}
+nav button span{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:rgba(0,79,159,.1);margin-right:6px;font-size:12px}
+nav button.on span{background:var(--c1);color:#fff}
+.station{display:none;padding:26px}
+.station.on{display:block;animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+h2{font-size:23px;letter-spacing:-.01em;margin-bottom:4px}
+h3{font-size:16px;margin:22px 0 8px}
+.lead{color:var(--muted);margin-bottom:18px;max-width:780px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card{background:rgba(255,255,255,.7);border:1px solid var(--line);border-radius:18px;padding:16px}
+.btn{border:0;border-radius:14px;padding:10px 16px;font-weight:600;font-size:14px;font-family:inherit;cursor:pointer;background:var(--c1);color:#fff;transition:.2s}
+.btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn.ghost{background:#fff;color:var(--c1);border:1px solid rgba(0,79,159,.25)}
+.btn.red{background:var(--c2)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.next{margin-top:22px;text-align:right}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(214,0,28,.1);color:var(--c2);margin-bottom:8px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px}
+.pill{border:1.5px solid rgba(0,79,159,.3);background:#fff;color:var(--c1);border-radius:30px;padding:8px 14px;font-weight:600;font-size:14px;font-family:inherit;cursor:pointer;transition:.2s}
+.pill.on{background:var(--c1);color:#fff;border-color:var(--c1);box-shadow:0 4px 12px rgba(0,79,159,.3)}
+/* Station 1 */
+.bubble{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;background:#111a2b;color:#e8eefc;border-radius:14px;padding:12px 14px;margin-bottom:12px;min-height:46px}
+.bubble b{color:#ffb3bd;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.flow{display:grid;grid-template-columns:1fr 60px 1fr 60px 1fr;align-items:center;gap:6px;margin:6px 0}
+.node{cursor:pointer;text-align:center;padding:20px 12px;border-radius:20px;background:rgba(255,255,255,.75);border:2px solid transparent;transition:.25s}
+.node:hover,.node.sel{border-color:var(--c1);transform:translateY(-3px)}
+.node.sel{box-shadow:0 8px 24px rgba(0,79,159,.25)}
+.node .ic{font-size:34px}
+.node b{display:block;margin-top:4px}
+.node small{color:var(--muted)}
+.node.box{background:#111a2b;color:#fff}
+.node.box.sel{border-color:var(--c2)}
+.node.box small{color:#b8c3d6}
+.node.box .ic{animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.4}}
+.arrow{height:4px;border-radius:4px;background:rgba(0,79,159,.2);position:relative;overflow:hidden}
+.arrow::after{content:"";position:absolute;top:0;left:-30%;width:30%;height:100%;background:var(--c2);border-radius:4px;animation:run 1.6s linear infinite}
+@keyframes run{to{left:100%}}
+.info{min-height:80px;margin-top:12px;padding:14px 16px;border-left:4px solid var(--c1);background:rgba(255,255,255,.75);border-radius:12px}
+.info ul{padding-left:20px;margin-top:4px}
+.info .ans{margin-top:6px;padding:10px 12px;background:#fff;border-radius:10px;font-style:italic}
+.info .warn{margin-top:8px;color:var(--c2);font-weight:600}
+.mq{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:12px 14px;margin:8px 0;border-radius:14px;background:rgba(255,255,255,.7);border:1px solid var(--line)}
+.mq p{flex:1 1 260px;font-weight:600}
+.mq .ex{flex-basis:100%;font-weight:400;font-size:14px;color:var(--muted);display:none}
+.mq.ok{border-color:var(--ok);background:rgba(26,158,92,.08)}
+.mq.no{border-color:var(--c2);background:rgba(214,0,28,.06)}
+.mq.ok .ex,.mq.no .ex{display:block}
+.mq button,.sc button{border:1px solid rgba(0,79,159,.25);background:#fff;border-radius:12px;padding:6px 12px;font-weight:600;font-size:13px;font-family:inherit;cursor:pointer;color:var(--c1)}
+.mq button:disabled,.sc button:disabled{opacity:.45;cursor:default}
+/* Station 2 */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
+.prompt{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;background:#111a2b;color:#e8eefc;border-radius:14px;padding:14px;min-height:90px;line-height:1.6}
+.prompt .hl{color:#ffb3bd}
+canvas{width:100%;height:290px;display:block;border-radius:18px;background:rgba(255,255,255,.55)}
+.meter{height:10px;border-radius:10px;background:rgba(0,79,159,.12);overflow:hidden;margin:10px 0 4px}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--c2),var(--c1));border-radius:10px;transition:width .5s}
+.mlabel{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+.out{margin-top:14px;font-size:14px;max-height:340px;overflow:auto}
+.out h4{font-size:16px;margin-bottom:6px;color:var(--c1)}
+.out h5{font-size:13px;margin:10px 0 2px;text-transform:uppercase;letter-spacing:.05em;color:var(--c2)}
+.out ul{padding-left:18px}
+.hint{font-size:13px;color:var(--c1);font-weight:600;min-height:20px;margin-top:6px}
+/* Station 3 */
+.sentence{font-size:26px;font-weight:700;line-height:1.35;padding:20px;border-radius:18px;background:rgba(255,255,255,.75);min-height:90px}
+.sentence em{font-style:normal;color:var(--c1)}
+.cursor{display:inline-block;width:3px;height:1em;background:var(--c2);vertical-align:-3px;margin-left:4px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.cand{display:grid;grid-template-columns:150px 1fr 54px;gap:10px;align-items:center;padding:8px 10px;border-radius:12px;cursor:pointer;transition:.15s}
+.cand:hover,.cand.flash{background:rgba(0,79,159,.08)}
+.cand b{font-size:16px}
+.bar{height:16px;border-radius:8px;background:rgba(0,79,159,.1);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--c1);border-radius:8px;transition:width .4s}
+.cand.low .bar i{background:var(--c2)}
+.cand span{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px}
+input[type=range]{width:100%;accent-color:var(--c2)}
+/* Station 4 */
+.sc{padding:14px 16px;margin:10px 0;border-radius:16px;background:rgba(255,255,255,.75);border:1.5px solid var(--line);transition:.2s}
+.sc .area{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.sc p{font-weight:600;margin:2px 0 10px}
+.sc .ex{display:none;font-size:14px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}
+.sc.done .ex{display:block}
+.sc.r-gut{border-color:var(--ok)}
+.sc.r-pruefen{border-color:var(--warn)}
+.sc.r-nein{border-color:var(--c2)}
+.sc button.pick{outline:3px solid rgba(0,79,159,.35)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.col h4{font-size:15px;margin-bottom:8px}
+.col ul{padding-left:18px;font-size:14px}
+.col li{margin:4px 0}
+.col.c-ok{border-top:4px solid var(--ok)}
+.col.c-lim{border-top:4px solid var(--c2)}
+.col.c-ch{border-top:4px solid var(--warn)}
+.score{font-weight:700;color:var(--c1)}
+/* Station 5 */
+label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:10px 0 4px}
+select,textarea{width:100%;font-size:14px;font-family:inherit;padding:10px 12px;border-radius:12px;border:1px solid rgba(0,79,159,.2);background:rgba(255,255,255,.85);color:var(--ink);resize:vertical}
+textarea{min-height:44px}
+.check{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.check span{font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(0,0,0,.06);color:var(--muted)}
+.check span.on{background:rgba(26,158,92,.15);color:#137a47}
+.privacy{font-size:13px;padding:10px 12px;border-radius:12px;background:rgba(214,0,28,.07);color:#8a0012;margin-top:12px}
+.hidden{display:none!important}
+.basics{display:inline-block;vertical-align:middle;font-size:13px;font-weight:700;letter-spacing:.03em;padding:3px 10px;border-radius:20px;background:rgba(214,0,28,.1);color:var(--c2);margin-left:6px}
+.welcome{position:relative;text-align:center;padding:48px 26px 40px;animation:in .4s ease}
+.welcome .big{width:110px;height:110px;border-radius:30px;margin:0 auto 20px;display:grid;place-items:center;background:linear-gradient(145deg,#1a66b8,var(--c1));box-shadow:0 14px 34px rgba(0,79,159,.35),inset 0 1px 0 rgba(255,255,255,.35);animation:bob 4s ease-in-out infinite}
+.welcome .big svg{width:80px;height:80px}
+@keyframes bob{50%{transform:translateY(-6px)}}
+.welcome h2{font-size:34px;letter-spacing:-.02em}
+.welcome .lead{margin:8px auto 26px;font-size:17px}
+.parts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:820px;margin:0 auto 28px;text-align:left}
+.parts .card b{display:block;font-size:15px;margin:4px 0 2px}
+.parts .card small{color:var(--muted);font-size:13px}
+.parts .num{font-size:12px;font-weight:700;color:var(--c2);letter-spacing:.05em}
+.welcome .btn{font-size:17px;padding:14px 30px;border-radius:18px}
+.logo{cursor:pointer}
+.tg{position:absolute;right:18px;bottom:16px;width:34px;height:34px;opacity:.55;transition:.25s}
+.tg:hover{opacity:1;transform:scale(1.08)}
+.tg img{width:100%;height:100%;display:block;border-radius:50%}
+@media(max-width:820px){.parts{grid-template-columns:1fr}.welcome h2{font-size:27px}}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:22px}
+@media(max-width:820px){
+ .grid2,.grid3{grid-template-columns:1fr}
+ .flow{grid-template-columns:1fr}
+ .arrow{width:4px;height:36px;margin:0 auto}
+ .arrow::after{width:100%;height:30%;top:-30%;left:0;animation:rund 1.6s linear infinite}
+ @keyframes rund{to{top:100%}}
+ .station{padding:18px}
+ .sentence{font-size:21px}
+ .cand{grid-template-columns:110px 1fr 46px}
+ nav button{font-size:13px;padding:9px 8px}
+}
+</style>
+</head>
+<body>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+<div class="wrap">
+<header>
+ <div class="brand">
+  <div class="logo" aria-hidden="true">
+   <svg viewBox="0 0 48 48" fill="none">
+    <g stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".7">
+     <line x1="10" y1="15" x2="24" y2="9"/><line x1="10" y1="15" x2="24" y2="24"/><line x1="10" y1="15" x2="24" y2="39"/>
+     <line x1="10" y1="33" x2="24" y2="9"/><line x1="10" y1="33" x2="24" y2="24"/><line x1="10" y1="33" x2="24" y2="39"/>
+     <line x1="24" y1="9" x2="38" y2="24"/><line x1="24" y1="24" x2="38" y2="24"/><line x1="24" y1="39" x2="38" y2="24"/>
+    </g>
+    <g fill="#fff"><circle cx="10" cy="15" r="3.6"/><circle cx="10" cy="33" r="3.6"/><circle cx="24" cy="9" r="3.6"/><circle cx="24" cy="24" r="3.6"/><circle cx="24" cy="39" r="3.6"/></g>
+    <circle cx="38" cy="24" r="7" fill="#d6001c" opacity=".35"/>
+    <circle cx="38" cy="24" r="4.4" fill="#d6001c" stroke="#fff" stroke-width="1.5"/>
+   </svg>
+  </div>
+  <div><h1>KI verstehen <span class="basics">die Basics</span></h1><div class="kicker">Grundlagen · Funktionsweise · Chancen &amp; Grenzen</div></div>
+ </div>
+ <p class="sub">Wie funktioniert generative KI, was macht einen guten Prompt aus – und wo liegen Chancen und Grenzen? Ausprobieren erwünscht!</p>
+</header>
+
+<section class="glass welcome" id="welcome">
+ <div class="big" id="bigLogo"></div>
+ <h2>KI verstehen – die Basics</h2>
+ <p class="lead">Ein kompakter, interaktiver Einstieg in die Grundlagen: Wie funktioniert generative KI – und wo liegen ihre Chancen und Grenzen? Etwa 15–20 Minuten, ganz ohne Anmeldung.</p>
+ <div class="parts">
+  <div class="card"><span class="num">STATION 1–3</span><b>🧠 Grundlagen</b><small>Training, Blackbox und Antwort – wie der Prompt eingrenzt und wie die KI Wort für Wort entscheidet.</small></div>
+  <div class="card"><span class="num">STATION 4</span><b>⚖️ Einordnen</b><small>Chancen, Grenzen und Herausforderungen in Schule, Betrieb und Gesellschaft.</small></div>
+  <div class="card"><span class="num">STATION 5</span><b>🛠️ Praxis</b><small>Eigenen Prompt bauen und direkt mitnehmen.</small></div>
+ </div>
+ <button class="btn" id="startBtn">Los geht’s →</button>
+ <a class="tg" href="https://hackij.github.io" target="_blank" rel="noopener" title="Tiefgang"><img src="tiefgang.png" alt="Tiefgang"></a>
+</section>
+
+<nav class="glass hidden">
+ <button class="on"><span>1</span>So arbeitet KI</button>
+ <button><span>2</span>Prompt-Raum</button>
+ <button><span>3</span>Nächstes Wort</button>
+ <button><span>4</span>Chancen &amp; Grenzen</button>
+ <button><span>5</span>Baukasten</button>
+</nav>
+
+<!-- STATION 1 -->
+<section class="station glass">
+ <span class="tag">Grundlagen · Station 1</span>
+ <h2>Training → Muster → Antwort</h2>
+ <p class="lead">Eine generative KI schlägt nichts nach wie in einer Datenbank. Sie hat im Training Muster aus riesigen Textmengen gelernt und berechnet beim Antworten Wort für Wort, was am wahrscheinlichsten passt. <b>Wähle ein Beispiel und spiele es Schritt für Schritt durch.</b></p>
+ <div class="pills" id="cases"></div>
+ <div class="bubble" id="bubble"><b>Prompt:</b> Wähle oben ein Beispiel …</div>
+ <div class="flow">
+  <div class="node" data-i="1"><div class="ic">📚</div><b>Trainingsdaten</b><small>Bücher, Webseiten, Texte</small></div>
+  <div class="arrow"></div>
+  <div class="node box" data-i="2"><div class="ic">⬛</div><b>Blackbox</b><small>Milliarden gelernte Gewichte</small></div>
+  <div class="arrow"></div>
+  <div class="node" data-i="3"><div class="ic">✍️</div><b>Antwort</b><small>Wort für Wort berechnet</small></div>
+ </div>
+ <div class="info" id="info">👆 Wähle ein Beispiel – oder tippe auf eine Station, um zu erfahren, was dort grundsätzlich passiert.</div>
+ <div class="row"><button class="btn" id="stepBtn" style="display:none">Nächster Schritt ▶</button></div>
+
+ <h3>Mythos oder Fakt? <span class="score" id="mscore"></span></h3>
+ <div id="myths"></div>
+ <div class="next"><button class="btn" data-go="1">Weiter: Wie der Prompt eingrenzt →</button></div>
+</section>
+
+<!-- STATION 2 -->
+<section class="station glass">
+ <span class="tag">Grundlagen · Station 2</span>
+ <h2>Der Prompt-Raum</h2>
+ <p class="lead">Ohne Angaben muss die KI aus einem riesigen Raum an Möglichkeiten „raten“. Jeder Baustein grenzt diesen Raum ein – die Antwort wird gezielter. Aufgabe: <b>eine Stellenanzeige</b>.</p>
+ <div class="grid2">
+  <div>
+   <b>Bausteine hinzufügen:</b>
+   <div class="chips" id="chips"></div>
+   <b>Dein Prompt:</b>
+   <div class="prompt" id="prompt"></div>
+   <div class="hint" id="hint"></div>
+   <div class="row"><button class="btn ghost" id="allOn">Alle Bausteine</button><button class="btn ghost" id="allOff">Zurücksetzen</button></div>
+  </div>
+  <div>
+   <canvas id="space"></canvas>
+   <div class="meter"><i id="meter"></i></div>
+   <div class="mlabel"><span id="mtext">Sehr vage – die KI muss raten</span><span id="wc"></span></div>
+  </div>
+ </div>
+ <div class="card out" id="out"></div>
+ <div class="next"><button class="btn" data-go="2">Weiter: Wie die KI Wörter wählt →</button></div>
+</section>
+
+<!-- STATION 3 -->
+<section class="station glass">
+ <span class="tag">Grundlagen · Station 3</span>
+ <h2>Das nächste Wort</h2>
+ <p class="lead">So „denkt“ ein Sprachmodell: Es berechnet für jedes mögliche nächste Wort eine Wahrscheinlichkeit. Wähle selbst oder lass die KI würfeln. Mit der <b>Temperatur</b> stellst du ein, wie mutig sie dabei ist.</p>
+ <div class="sentence" id="sent"></div>
+ <div class="grid2" style="margin-top:16px">
+  <div class="card"><b>Mögliche nächste Wörter</b><div id="cands" style="margin-top:8px"></div></div>
+  <div class="card">
+   <b>Temperatur: <span id="tval">1.0</span></b>
+   <input type="range" id="temp" min="0.2" max="2" step="0.1" value="1">
+   <div class="mlabel"><span>vorhersehbar</span><span>kreativ / riskant</span></div>
+   <div class="row"><button class="btn" id="auto">🎲 KI wählen lassen</button><button class="btn ghost" id="reset">Neu starten</button></div>
+   <p style="font-size:14px;color:var(--muted);margin-top:14px">Bei niedriger Temperatur gewinnt fast immer das häufigste Wort. Bei hoher Temperatur rutscht auch mal „Socken“ durch. Die KI prüft dabei nicht, ob etwas <i>stimmt</i> – nur, ob es <i>wahrscheinlich klingt</i>. So entstehen Halluzinationen.</p>
+  </div>
+ </div>
+ <div class="next"><button class="btn" data-go="3">Weiter: Chancen &amp; Grenzen →</button></div>
+</section>
+
+<!-- STATION 4 -->
+<section class="station glass">
+ <span class="tag">Einordnen · Station 4</span>
+ <h2>Chancen &amp; Grenzen</h2>
+ <p class="lead">Wofür eignet sich KI – und wofür nicht? Schätze jede Situation ein. <span class="score" id="cscore"></span></p>
+ <div class="legend"><span>👍 gut geeignet</span><span>⚠️ nur mit Prüfung</span><span>⛔ ungeeignet / riskant</span></div>
+ <div class="pills" id="filter" style="margin-top:12px"></div>
+ <div id="scen"></div>
+
+ <h3>Auf einen Blick</h3>
+ <div class="grid3">
+  <div class="card col c-ok"><h4>✅ Chancen</h4><ul>
+   <li>Zeitersparnis bei Routinetexten und Entwürfen</li>
+   <li>Differenzierung und individuelle Förderung</li>
+   <li>Ideen, Beispiele und Varianten in Sekunden</li>
+   <li>Sprachbarrieren abbauen durch Übersetzung</li>
+   <li>Fachkräfte von Bürokratie entlasten</li></ul></div>
+  <div class="card col c-lim"><h4>🚧 Grenzen</h4><ul>
+   <li>Kein echtes Verstehen – nur Wahrscheinlichkeiten</li>
+   <li>Halluzinationen: überzeugend, aber falsch</li>
+   <li>Wissensstand endet beim Training</li>
+   <li>Kennt den eigenen Betrieb, die Klasse, den Fall nicht</li>
+   <li>Übernimmt keine Verantwortung</li></ul></div>
+  <div class="card col c-ch"><h4>⚖️ Herausforderungen</h4><ul>
+   <li>Datenschutz: keine personenbezogenen Daten</li>
+   <li>Urheberrecht bei Eingaben und Ergebnissen</li>
+   <li>Verzerrungen (Bias) aus den Trainingsdaten</li>
+   <li>Lern- und Prüfungskultur neu denken</li>
+   <li>Kompetenzverlust durch blindes Übernehmen</li>
+   <li>EU AI Act: Pflicht zu KI-Kompetenz beim Einsatz</li></ul></div>
+ </div>
+ <div class="next"><button class="btn" data-go="4">Weiter zum Baukasten →</button></div>
+</section>
+
+<!-- STATION 5 -->
+<section class="station glass">
+ <span class="tag">Praxis · Station 5</span>
+ <h2>Prompt-Baukasten zum Mitnehmen</h2>
+ <p class="lead">Bau dir deinen eigenen Prompt für Schule oder Betrieb – und kopiere ihn direkt in das KI-Tool deiner Wahl.</p>
+ <div class="grid2">
+  <div>
+   <label>Bereich</label>
+   <select id="area"><option value="schule">🏫 Schule / Unterricht</option><option value="handwerk">🔧 Handwerk / Betrieb</option><option value="buero">💼 Büro / Verwaltung</option></select>
+   <div class="row" style="margin-top:8px"><button class="btn ghost" id="fill">Beispiel einsetzen</button><button class="btn ghost" id="clear">Leeren</button></div>
+   <label>🎭 Rolle – wer soll die KI sein?</label><textarea id="f_rolle"></textarea>
+   <label>✅ Aufgabe – was soll sie tun?</label><textarea id="f_aufgabe"></textarea>
+   <label>🏢 Kontext – Hintergrund</label><textarea id="f_kontext"></textarea>
+   <label>🎯 Zielgruppe – für wen?</label><textarea id="f_ziel"></textarea>
+   <label>📋 Format – wie soll es aussehen?</label><textarea id="f_format"></textarea>
+   <label>💬 Tonfall</label><textarea id="f_ton"></textarea>
+   <label style="display:flex;gap:8px;align-items:center;font-weight:600"><input type="checkbox" id="f_rueck" checked style="width:auto"> KI darf Rückfragen stellen</label>
+  </div>
+  <div>
+   <b>Dein fertiger Prompt</b>
+   <div class="check" id="check"></div>
+   <div class="prompt" id="final" style="min-height:260px;white-space:pre-wrap"></div>
+   <div class="row"><button class="btn red" id="copy">📋 Prompt kopieren</button><span id="copied" style="font-size:13px;color:#137a47;font-weight:700"></span></div>
+   <div class="privacy">🔒 <b>Datenschutz:</b> Keine Namen, Noten, Kundendaten oder Betriebsgeheimnisse in frei zugängliche KI-Tools eingeben. Lieber anonymisieren: „Schüler A“, „Kunde X“.</div>
+  </div>
+ </div>
+</section>
+
+<footer>Staatliche Berufsschule I Bayreuth · KI verstehen – die Basics · Alle Beispielantworten sind vorbereitet – die App funktioniert ohne Internet und ohne Datenübertragung.</footer>
+</div>
+
+<script>
+/* ---------- Navigation ---------- */
+const tabs=[...document.querySelectorAll('nav button')],sts=[...document.querySelectorAll('.station')];
+function show(i){tabs.forEach((t,j)=>t.classList.toggle('on',j===i));sts.forEach((s,j)=>s.classList.toggle('on',j===i));if(i===1)resize();window.scrollTo({top:0,behavior:'smooth'})}
+tabs.forEach((t,i)=>t.onclick=()=>show(i));
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>show(+b.dataset.go));
+const welcome=document.getElementById('welcome'),navEl=document.querySelector('nav');
+document.getElementById('bigLogo').innerHTML=document.querySelector('.logo').innerHTML;
+document.getElementById('startBtn').onclick=()=>{welcome.classList.add('hidden');navEl.classList.remove('hidden');show(0)};
+document.querySelector('.logo').onclick=()=>{sts.forEach(s=>s.classList.remove('on'));navEl.classList.add('hidden');welcome.classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'})};
+
+/* ---------- Station 1: Beispiele durchspielen ---------- */
+const general={
+ 1:'<b>📚 Training (passiert vorher, einmalig):</b> Das Modell liest riesige Mengen Text und lernt dabei, welche Wörter typischerweise aufeinander folgen. Die Texte selbst werden nicht als Datenbank gespeichert – übrig bleiben nur gelernte Muster.',
+ 2:'<b>⬛ Blackbox:</b> Diese Muster stecken in Milliarden Zahlen („Gewichten“) eines neuronalen Netzes. Niemand kann genau nachvollziehen, warum eine bestimmte Antwort entsteht – auch die Entwickler nicht vollständig.',
+ 3:'<b>✍️ Antwort:</b> Aus deinem Prompt berechnet das Modell das wahrscheinlichste nächste Wort, hängt es an und wiederholt das – Wort für Wort. <b>Je präziser dein Prompt, desto gezielter diese Berechnung.</b>'
+};
+const cases=[
+ {l:'🏫 Elternbrief',p:'Schreib einen kurzen Elternbrief zum Wirtschaftstag.',
+  t:'Tausende Briefe, Einladungen und Schulmitteilungen',
+  m:['Textsorte Brief → Anrede, Grußformel','Zielgruppe Eltern → höflich, „Sie“','Anlass Schulveranstaltung → Termin, Programm'],
+  o:'Liebe Eltern, am kommenden Donnerstag findet an unserer Schule der Wirtschaftstag statt. Ihre Kinder lernen Betriebe aus der Region kennen …',
+  w:'Datum und Programm hat die KI geraten – sie kennt eure Planung nicht. Fakten selbst einsetzen!'},
+ {l:'🔧 Kundenangebot',p:'Formuliere ein Angebot für den Austausch von 6 Steckdosen.',
+  t:'Viele Angebote, Leistungsverzeichnisse und Handwerkertexte',
+  m:['Textsorte Angebot → Positionen, Preise, Gültigkeit','Branche Elektro → Fachbegriffe wie „Unterputz“','Ton → geschäftlich, sachlich'],
+  o:'Angebot – Pos. 1: Demontage von 6 alten Steckdosen. Pos. 2: Lieferung und Montage von 6 Unterputz-Steckdosen inkl. Material … Gültig 30 Tage.',
+  w:'Struktur top – aber Preise und Arbeitszeiten sind Schätzungen aus Mustern, keine Kalkulation!'},
+ {l:'⚙️ Fehlersuche',p:'Mein Förderband stoppt sporadisch. Woran kann das liegen?',
+  t:'Handbücher, Fachforen und Lehrtexte zur Antriebstechnik',
+  m:['Thema Mechatronik → typische Fehlerursachen','Muster Fehlersuche → Prüfreihenfolge','Format → nummerierte Liste'],
+  o:'Mögliche Ursachen: 1. Verschmutzte Lichtschranke 2. Motorschutzschalter löst aus 3. Wackelkontakt an der Klemme 4. Überlast durch blockierte Rollen …',
+  w:'Gute Checkliste – aber die KI kennt deine Anlage nicht. Sie liefert typische Muster, keine Diagnose.'},
+ {l:'📧 Mail an Betrieb',p:'Schreib eine sachliche Mail an den Ausbildungsbetrieb von Schüler A: 6 unentschuldigte Fehltage seit September, Bitte um ein gemeinsames Gespräch.',
+  t:'Unzählige Geschäftsmails, Schulschreiben und Elternbriefe',
+  m:['Textsorte Geschäftsmail → Betreff, Anrede, Grußformel','Anlass Fehlzeiten → sachlich, nicht anklagend','Ziel Gespräch → Terminvorschlag, Bitte um Rückmeldung'],
+  o:'Betreff: Fehlzeiten von Schüler A – Bitte um Rücksprache<br>Sehr geehrte Damen und Herren, wir möchten Sie darüber informieren, dass Schüler A seit Beginn des Schuljahres an sechs Tagen unentschuldigt gefehlt hat. Um gemeinsam gegenzusteuern, schlagen wir ein Gespräch vor …',
+  w:'Datenschutz: echte Namen, Klassen und Fehltage gehören nicht in frei zugängliche KI-Tools – anonymisieren und erst im eigenen Mailprogramm ergänzen. Und: Schulrechtliche Schritte (z. B. ein Verweis) folgen festen Regeln – Paragrafen oder Fristen aus der KI immer im Gesetz bzw. mit der Schulleitung prüfen.'},
+ {l:'🌍 Faktenfrage',p:'Wer hat die Fußball-WM 2031 gewonnen?',
+  t:'Unzählige Sportberichte – aber keiner über eine WM 2031',
+  m:['Muster Sportnachricht → „X gewann gegen Y“','Problem: Zu diesem Ereignis gibt es keine Daten','Trotzdem ist ein flüssiger Satz „wahrscheinlich“'],
+  o:'„Die WM 2031 gewann Spanien mit einem 2:1 im Finale …“',
+  w:'Frei erfunden! Eine WM 2031 gibt es gar nicht. Ohne passende Daten kann die KI trotzdem plausibel klingenden Unsinn erzeugen – eine Halluzination.'}
+];
+let cs=null,step=0;
+const nodes=[...document.querySelectorAll('.node')],infoEl=document.getElementById('info'),stepBtn=document.getElementById('stepBtn');
+const caseBox=document.getElementById('cases');
+cases.forEach((c,i)=>{const b=document.createElement('button');b.className='pill';b.textContent=c.l;b.onclick=()=>{cs=c;step=0;caseBox.querySelectorAll('.pill').forEach(x=>x.classList.remove('on'));b.classList.add('on');renderCase()};caseBox.appendChild(b)});
+function renderCase(){
+ nodes.forEach(n=>n.classList.toggle('sel',+n.dataset.i===step));
+ if(!cs)return;
+ document.getElementById('bubble').innerHTML=`<b>Prompt:</b> ${cs.p}`;
+ stepBtn.style.display='inline-block';
+ stepBtn.textContent=step<3?'Nächster Schritt ▶':'↺ Nochmal von vorn';
+ if(step===0)infoEl.innerHTML='Der Prompt ist eingegeben. Tippe auf <b>„Nächster Schritt“</b>, um zu sehen, was im Inneren passiert.';
+ if(step===1)infoEl.innerHTML=`<b>📚 Gelernt im Training:</b> ${cs.t}. Diese Texte sind nicht gespeichert – das Modell hat daraus nur Muster gelernt.`;
+ if(step===2)infoEl.innerHTML=`<b>⬛ In der Blackbox werden passende Muster aktiviert:</b><ul>${cs.m.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+ if(step===3)infoEl.innerHTML=`<b>✍️ Ausgabe – Wort für Wort berechnet:</b><div class="ans">${cs.o}</div><div class="warn">⚠️ ${cs.w}</div>`;
+}
+stepBtn.onclick=()=>{step=step<3?step+1:0;renderCase()};
+nodes.forEach(n=>n.onclick=()=>{
+ const i=+n.dataset.i;
+ if(cs){step=i;renderCase()}
+ else{nodes.forEach(x=>x.classList.toggle('sel',x===n));infoEl.innerHTML=general[i]}
+});
+
+const myths=[
+ ['Die KI sucht ihre Antwort in einer Datenbank heraus.',false,'Mythos: Sie erzeugt Text neu aus gelernten Mustern. Nachgeschlagen wird nur, wenn man ihr z. B. eine Websuche oder eigene Dokumente gibt.'],
+ ['Die KI berechnet Wort für Wort, was am wahrscheinlichsten folgt.',true,'Fakt: Genau das ist das Grundprinzip großer Sprachmodelle – siehe Station 3.'],
+ ['Wenn die KI etwas überzeugend formuliert, stimmt es auch.',false,'Mythos: Sie kann plausibel klingende, aber falsche Aussagen erzeugen („Halluzinationen“). Ergebnisse immer prüfen!'],
+ ['Ein präziser Prompt verändert, welche Antwort wahrscheinlich ist.',true,'Fakt: Jede Angabe grenzt die Möglichkeiten ein – siehe Station 2.'],
+ ['Was ich eingebe, bleibt automatisch privat.',false,'Mythos: Je nach Anbieter und Einstellung können Eingaben gespeichert oder ausgewertet werden. Keine personenbezogenen Daten eingeben!']
+];
+let mOk=0,mDone=0;
+const mBox=document.getElementById('myths');
+myths.forEach(([t,fact,ex])=>{
+ const d=document.createElement('div');d.className='mq';
+ d.innerHTML=`<p>${t}</p><div><button>Mythos</button> <button>Fakt</button></div><div class="ex">${ex}</div>`;
+ const [bm,bf]=d.querySelectorAll('button');
+ const ans=g=>{const ok=g===fact;d.classList.add(ok?'ok':'no');bm.disabled=bf.disabled=true;mDone++;if(ok)mOk++;document.getElementById('mscore').textContent=`${mOk}/${mDone} richtig`};
+ bm.onclick=()=>ans(false);bf.onclick=()=>ans(true);
+ mBox.appendChild(d);
+});
+
+/* ---------- Station 2 ---------- */
+const blocks=[
+ {k:'rolle',l:'🎭 Rolle',t:'Du bist Ausbildungsleiter:in in einem Handwerksbetrieb.',h:'Rolle → Fachsprache und eine konkrete Ansprechperson tauchen auf.'},
+ {k:'kontext',l:'🏢 Kontext',t:'Wir sind ein Elektro-Fachbetrieb in Bayreuth mit 25 Mitarbeitenden und suchen ab September eine:n Auszubildende:n Elektroniker:in (m/w/d).',h:'Kontext → Beruf, Ort und Betrieb sind jetzt konkret statt Platzhalter.'},
+ {k:'ziel',l:'🎯 Zielgruppe',t:'Die Anzeige richtet sich an Schulabgänger:innen zwischen 15 und 18.',h:'Zielgruppe → Anforderungen passen jetzt zu Jugendlichen statt „Berufserfahrung“.'},
+ {k:'format',l:'📋 Format',t:'Gliedere in: Überschrift, Wir bieten, Du bringst mit, Kontakt – jeweils mit Stichpunkten.',h:'Format → Aus dem Fließtext wird eine klar gegliederte Anzeige.'},
+ {k:'ton',l:'💬 Tonfall',t:'Schreib locker, per Du und motivierend.',h:'Tonfall → Die Anzeige duzt und spricht junge Leute direkt an.'},
+ {k:'laenge',l:'📏 Länge',t:'Maximal 120 Wörter.',h:'Länge → Floskeln fliegen raus, die Anzeige wird knackig.'}
+];
+const act={};
+const chipBox=document.getElementById('chips');
+blocks.forEach(b=>{const c=document.createElement('button');c.className='pill';c.textContent=b.l;c.onclick=()=>{act[b.k]=!act[b.k];c.classList.toggle('on',act[b.k]);update(act[b.k]?b.h:'')};b.el=c;chipBox.appendChild(c)});
+document.getElementById('allOn').onclick=()=>{blocks.forEach(b=>{act[b.k]=true;b.el.classList.add('on')});update('Alle Bausteine aktiv – so sieht ein starker Prompt aus.')};
+document.getElementById('allOff').onclick=()=>{blocks.forEach(b=>{act[b.k]=false;b.el.classList.remove('on')});update('')};
+
+function buildAd(a){
+ const du=!!a.ton,S=(x,y)=>du?x:y;
+ const title=a.kontext?'⚡ Ausbildung Elektroniker:in (m/w/d) – ab September in Bayreuth':'Stellenanzeige';
+ const intro=a.kontext?S('Du willst wissen, wie Strom wirklich funktioniert? Bei uns – einem Elektro-Fachbetrieb mit 25 Leuten in Bayreuth – lernst du es von Grund auf.','Unser Elektro-Fachbetrieb in Bayreuth mit 25 Mitarbeitenden bildet ab September eine:n Elektroniker:in (m/w/d) aus.'):S('Wir suchen dich für unser Team!','Wir suchen eine engagierte Person zur Verstärkung unseres Teams.');
+ const filler=S('Wir sind ein dynamisches Unternehmen mit langjähriger Erfahrung und legen großen Wert auf Qualität, Kundenzufriedenheit und ein gutes Miteinander. Bei uns erwartet dich ein abwechslungsreiches Aufgabenfeld mit vielfältigen Herausforderungen in einem wachsenden Markt.','Wir sind ein dynamisches Unternehmen mit langjähriger Erfahrung und legen großen Wert auf Qualität, Kundenzufriedenheit und ein gutes Miteinander. Es erwartet Sie ein abwechslungsreiches Aufgabenfeld mit vielfältigen Herausforderungen in einem wachsenden Markt.');
+ const offer=a.ziel?[['Moderne Werkstatt & eigenes Werkzeug','eine moderne Werkstatt mit eigenem Werkzeug'],['Feste Ansprechperson während der ganzen Ausbildung','eine feste Ansprechperson während der ganzen Ausbildung'],['Gute Chancen auf Übernahme','gute Chancen auf Übernahme']]
+  :[['Attraktive Vergütung','eine attraktive Vergütung'],['Angenehmes Arbeitsumfeld','ein angenehmes Arbeitsumfeld'],['Entwicklungsmöglichkeiten','Entwicklungsmöglichkeiten']];
+ const need=a.ziel?[['Mittelschul- oder Realschulabschluss','einen Mittelschul- oder Realschulabschluss'],['Spaß an Technik und Tüfteln','Spaß an Technik und Tüfteln'],['Zuverlässigkeit – Noten sind nicht alles','Zuverlässigkeit (Noten sind nicht alles)']]
+  :a.kontext?[['Technisches Verständnis','technisches Verständnis'],['Teamfähigkeit','Teamfähigkeit'],['Flexibilität','Flexibilität']]
+  :[['Einschlägige Berufserfahrung','einschlägige Berufserfahrung'],['Teamfähigkeit','Teamfähigkeit'],['Flexibilität und Belastbarkeit','Flexibilität und Belastbarkeit']];
+ const contact=a.rolle?S('Fragen? Melde dich direkt bei Frau Weber aus der Ausbildungsleitung – gern auch per WhatsApp.','Ihre Ansprechpartnerin: Frau Weber, Ausbildungsleitung. Wir freuen uns auf Ihre Bewerbung.'):S('Bewirb dich jetzt!','Bitte senden Sie uns Ihre vollständigen Bewerbungsunterlagen.');
+ const li=x=>x.map(i=>`<li>${i[0]}</li>`).join('');
+ const pr=x=>x.slice(0,-1).map(i=>i[1]).join(', ')+' und '+x[x.length-1][1];
+ if(a.format)return `<h4>${title}</h4><p>${intro}</p>${a.laenge?'':`<p>${filler}</p>`}<h5>Wir bieten</h5><ul>${li(offer)}</ul><h5>${S('Du bringst mit','Sie bringen mit')}</h5><ul>${li(need)}</ul><h5>Kontakt</h5><p>${contact}</p>`;
+ return `<h4>${title}</h4><p>${intro} ${a.laenge?'':filler+' '}Wir bieten ${pr(offer)}. ${S('Du bringst','Sie bringen')} ${pr(need)} mit. ${contact}</p>`;
+}
+const levels=['Sehr vage – die KI muss raten','Etwas eingegrenzt','Etwas eingegrenzt','Gut – schon brauchbar','Gut – schon brauchbar','Sehr präzise','Präzise und praxistauglich ✔'];
+let count=0;
+function update(h){
+ count=blocks.filter(b=>act[b.k]).length;
+ const on=k=>act[k]?blocks.find(b=>b.k===k):null;
+ const parts=[];
+ ['rolle','kontext'].forEach(k=>{if(on(k))parts.push(`<span class="hl">${on(k).t}</span>`)});
+ parts.push('Schreib eine Stellenanzeige.');
+ ['ziel','format','ton','laenge'].forEach(k=>{if(on(k))parts.push(`<span class="hl">${on(k).t}</span>`)});
+ document.getElementById('prompt').innerHTML=parts.join(' ');
+ document.getElementById('meter').style.width=Math.max(6,count/6*100)+'%';
+ document.getElementById('mtext').textContent=levels[count];
+ const o=document.getElementById('out');o.innerHTML='<b style="font-size:13px;color:var(--muted)">AUSGABE DER KI</b>'+buildAd(act);
+ document.getElementById('wc').textContent='≈ '+o.innerText.split(/\s+/).filter(Boolean).length+' Wörter';
+ document.getElementById('hint').textContent=h||'';
+}
+
+const cv=document.getElementById('space'),cx=cv.getContext('2d');let W=0,H=0,curR=null;
+const pts=[];for(let i=0;i<420;i++){pts.push({a:Math.random()*Math.PI*2,r:Math.sqrt(Math.random()),ph:Math.random()*6.28,sp:.4+Math.random()*.8})}
+const rel=['Azubi','Elektroniker:in','Bayreuth','Werkstatt','per Du','Stichpunkte','Schulabschluss','Übernahme'];
+const gen=['Senior-Position','Berufserfahrung','Homeoffice','Konzern','Sie-Form','Fließtext','Belastbarkeit','Teilzeit','Vertrieb','Englisch C1','Führungsrolle','Gehalt VB'];
+const words=[...rel.map((w,i)=>({w,rel:1,a:i/rel.length*6.28,r:.05+(i%3)*.05})),...gen.map((w,i)=>({w,rel:0,a:i/gen.length*6.28+.3,r:.55+(i%3)*.15}))];
+function resize(){const d=window.devicePixelRatio||1;W=cv.clientWidth;H=cv.clientHeight;cv.width=W*d;cv.height=H*d;cx.setTransform(d,0,0,d,0,0)}
+window.addEventListener('resize',resize);
+function draw(t){
+ requestAnimationFrame(draw);
+ if(!cv.offsetParent||!W)return;
+ const C={x:W/2,y:H/2},rx=W*.46,ry=H*.44,F={x:C.x+W*.12,y:C.y-H*.04};
+ const maxR=Math.hypot(rx,ry)*1.35,tR=maxR*(1-count*.14);
+ if(curR===null)curR=tR;curR+=(tR-curR)*.06;
+ cx.clearRect(0,0,W,H);
+ pts.forEach(p=>{
+  const x=C.x+Math.cos(p.a)*p.r*rx+Math.sin(t/1000*p.sp+p.ph)*3,y=C.y+Math.sin(p.a)*p.r*ry+Math.cos(t/1100*p.sp+p.ph)*3;
+  const d=Math.hypot(x-F.x,y-F.y),k=Math.min(1,Math.max(0,(curR-d)/18+.5));
+  const core=count>=3&&d<curR*.4;
+  cx.fillStyle=core?`rgba(214,0,28,${.25+.6*k})`:`rgba(0,79,159,${.1+.6*k})`;
+  cx.beginPath();cx.arc(x,y,core?3:2.4,0,6.28);cx.fill();
+ });
+ cx.setLineDash([6,6]);cx.strokeStyle='rgba(214,0,28,.7)';cx.lineWidth=2;cx.beginPath();cx.arc(F.x,F.y,Math.min(curR,maxR),0,6.28);cx.stroke();cx.setLineDash([]);
+ cx.font='600 12px -apple-system,Segoe UI,sans-serif';cx.textAlign='center';
+ words.forEach(w=>{
+  const x=(w.rel?F.x:C.x)+Math.cos(w.a)*w.r*rx,y=(w.rel?F.y:C.y)+Math.sin(w.a)*w.r*ry;
+  const d=Math.hypot(x-F.x,y-F.y),inside=d<curR;
+  cx.fillStyle=inside?(w.rel?'rgba(0,79,159,1)':'rgba(27,36,48,.75)'):'rgba(27,36,48,.15)';
+  cx.fillText(w.w,x,y);
+ });
+ cx.fillStyle='rgba(27,36,48,.55)';cx.textAlign='left';cx.fillText('Möglichkeitsraum der KI',12,20);
+}
+requestAnimationFrame(draw);
+update('');
+
+/* ---------- Station 3 ---------- */
+const tree={
+ 'bietet':{p:.46,n:{'sichere':{p:.42,n:{'Zukunftsperspektiven.':.62,'Arbeitsplätze.':.33,'Socken.':.05}},'viele':{p:.36,n:{'Chancen.':.6,'Möglichkeiten.':.36,'Bananen.':.04}},'spannende':{p:.19,n:{'Aufgaben.':.58,'Projekte.':.38,'Gerüchte.':.04}},'Pizza':{p:.03,n:{'am Freitag.':.5,'für alle.':.5}}}},
+ 'ist':{p:.32,n:{'die':{p:.45,n:{'Grundlage für eine sichere Zukunft.':.7,'halbe Miete.':.26,'Lieblingsfarbe von Montag.':.04}},'ein':{p:.4,n:{'starker Start ins Berufsleben.':.66,'echter Gewinn.':.3,'singender Kaktus.':.04}},'wichtig':{p:.12,n:{'für die Region.':.55,'für junge Menschen.':.41,'für Außerirdische.':.04}},'lila':{p:.03,n:{'und rund.':.5,'gestreift.':.5}}}},
+ 'braucht':{p:.18,n:{'gute':{p:.45,n:{'Ausbilder:innen.':.65,'Betriebe.':.3,'Drachen.':.05}},'Zeit':{p:.4,n:{'und Geduld.':.7,'und Vertrauen.':.27,'und Glitzer.':.03}},'Mut':{p:.15,n:{'zum Ausprobieren.':.75,'und Kaffee.':.25}}}},
+ 'tanzt':{p:.04,n:{'gern':{p:1,n:{'Tango.':.5,'im Regen.':.5}}}}
+};
+const START='Eine gute Ausbildung im Handwerk';
+let path=[],node=tree,T=1;
+const gp=v=>typeof v==='number'?v:v.p;
+function probs(){const e=Object.entries(node);const q=e.map(([w,v])=>Math.pow(gp(v),1/T));const s=q.reduce((a,b)=>a+b,0);return e.map(([w,v],i)=>({w,v,p:q[i]/s}))}
+function renderS(){
+ document.getElementById('sent').innerHTML=START+' '+path.map(w=>`<em>${w}</em>`).join(' ')+(node?'<span class="cursor"></span>':' ✅');
+ const box=document.getElementById('cands');
+ if(!node){box.innerHTML='<p style="margin-top:8px">Satz fertig! Starte neu und probiere eine andere Temperatur.</p>';return}
+ box.innerHTML='';
+ probs().forEach(c=>{const d=document.createElement('div');d.className='cand'+(c.p<.08?' low':'');d.innerHTML=`<b>${c.w}</b><div class="bar"><i style="width:${(c.p*100).toFixed(1)}%"></i></div><span>${Math.round(c.p*100)} %</span>`;d.onclick=()=>pick(c);d.dataset.w=c.w;box.appendChild(d)});
+}
+function pick(c){path.push(c.w);node=typeof c.v==='number'?null:c.v.n;renderS()}
+document.getElementById('temp').oninput=e=>{T=+e.target.value;document.getElementById('tval').textContent=T.toFixed(1);renderS()};
+document.getElementById('reset').onclick=()=>{path=[];node=tree;renderS()};
+document.getElementById('auto').onclick=()=>{
+ if(!node)return;const ps=probs();let r=Math.random(),c=ps[ps.length-1];
+ for(const x of ps){if((r-=x.p)<=0){c=x;break}}
+ const el=[...document.querySelectorAll('.cand')].find(d=>d.dataset.w===c.w);if(el)el.classList.add('flash');
+ setTimeout(()=>pick(c),450);
+};
+renderS();
+
+/* ---------- Station 4: Chancen & Grenzen ---------- */
+const V={gut:'👍 gut geeignet',pruefen:'⚠️ nur mit Prüfung',nein:'⛔ ungeeignet'};
+const scen=[
+ {a:'Schule',t:'Aus einem Fachtext ein Arbeitsblatt in drei Schwierigkeitsstufen erstellen.',v:'gut',e:'Große Zeitersparnis und echte Differenzierung. Fachlich kurz gegenlesen – dann eine der stärksten Anwendungen.'},
+ {a:'Schule',t:'Aufsätze von der KI benoten lassen und die Note ungeprüft übernehmen.',v:'nein',e:'Bewertung bleibt pädagogische Verantwortung der Lehrkraft. KI kann sich irren, verzerrt bewerten und ihre Note nicht begründet verantworten. Als Feedback-Hilfe denkbar – als Notengeber nicht.'},
+ {a:'Schule',t:'Statistiken und Quellen für eine Präsentation liefern lassen.',v:'pruefen',e:'Zahlen und Quellen können erfunden sein (Halluzination). Jede Angabe im Original nachprüfen.'},
+ {a:'Schule',t:'Lernenden schwierige Fachbegriffe in einfacher Sprache erklären lassen.',v:'pruefen',e:'Sehr hilfreich für individuelle Förderung – aber Lernende müssen wissen, dass Antworten falsch sein können. Medienkompetenz mitvermitteln.'},
+ {a:'Betrieb',t:'Antworten auf Kundenmails vorformulieren lassen.',v:'gut',e:'Spart viel Zeit bei Routine-Kommunikation. Vor dem Absenden lesen und anpassen – ohne Kundendaten im Prompt.'},
+ {a:'Betrieb',t:'Die komplette Kundendatei mit Namen und Adressen in ein kostenloses KI-Tool hochladen.',v:'nein',e:'Verstoß gegen den Datenschutz (DSGVO). Personenbezogene Daten gehören nicht in frei zugängliche Tools.'},
+ {a:'Betrieb',t:'Eine Bedienungsanleitung für Kolleg:innen mit anderer Muttersprache übersetzen.',v:'pruefen',e:'Baut Sprachbarrieren ab. Sicherheitsrelevante Stellen aber von Fachkundigen prüfen lassen.'},
+ {a:'Betrieb',t:'Bewerbungen automatisch aussortieren und Absagen ohne menschliche Prüfung verschicken.',v:'nein',e:'Gefahr von Diskriminierung durch Verzerrungen in den Trainingsdaten. KI in der Personalauswahl gilt im EU AI Act als Hochrisiko-Anwendung.'},
+ {a:'Gesellschaft',t:'Ideen für einen Projekt- oder Firmennamen sammeln.',v:'gut',e:'Brainstorming ist eine Stärke von KI. Vor der Nutzung prüfen, ob der Name markenrechtlich frei ist.'},
+ {a:'Gesellschaft',t:'Ein realistisches Foto einer Person erzeugen, die es nie gab, und es als echt ausgeben.',v:'nein',e:'Täuschung (Deepfake). KI-generierte Inhalte, die echt wirken, müssen als solche erkennbar sein.'},
+ {a:'Gesellschaft',t:'Ein geschütztes Buchkapitel einscannen, zusammenfassen lassen und die Zusammenfassung online stellen.',v:'pruefen',e:'Urheberrecht beachten: geschützte Werke nicht einfach hochladen oder weiterverbreiten. Schul- bzw. Lizenzregeln prüfen.'},
+ {a:'Gesellschaft',t:'Sich vor einer Entscheidung Pro- und Contra-Argumente sammeln lassen.',v:'gut',e:'Gute Denkhilfe, die neue Perspektiven öffnet. Die Entscheidung und die Verantwortung bleiben beim Menschen.'}
+];
+let filt='Alle',cOk=0,cDone=0;
+const fBox=document.getElementById('filter');
+['Alle','Schule','Betrieb','Gesellschaft'].forEach(f=>{const b=document.createElement('button');b.className='pill'+(f==='Alle'?' on':'');b.textContent=f;b.onclick=()=>{filt=f;fBox.querySelectorAll('.pill').forEach(x=>x.classList.toggle('on',x===b));renderScen()};fBox.appendChild(b)});
+const sBox=document.getElementById('scen');
+scen.forEach(s=>{
+ const d=document.createElement('div');d.className='sc';
+ d.innerHTML=`<div class="area">${s.a}</div><p>${s.t}</p><div>${Object.keys(V).map(k=>`<button data-v="${k}">${V[k]}</button>`).join(' ')}</div><div class="ex"></div>`;
+ d.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  const ok=b.dataset.v===s.v;cDone++;if(ok)cOk++;
+  d.classList.add('done','r-'+s.v);b.classList.add('pick');
+  d.querySelectorAll('button').forEach(x=>x.disabled=true);
+  d.querySelector('.ex').innerHTML=`<b>${ok?'✅ Stimmt!':'Unsere Einschätzung: '+V[s.v]}</b> ${s.e}`;
+  document.getElementById('cscore').textContent=`${cOk}/${cDone} wie unsere Einschätzung`;
+ });
+ s.el=d;sBox.appendChild(d);
+});
+function renderScen(){scen.forEach(s=>s.el.style.display=(filt==='Alle'||s.a===filt)?'':'none')}
+
+/* ---------- Station 5 ---------- */
+const presets={
+ schule:{rolle:'Du bist eine erfahrene Lehrkraft an einer Berufsschule.',aufgabe:'Erstelle ein Arbeitsblatt zum Thema Arbeitsschutz in der Werkstatt.',kontext:'Klasse Mechatroniker, 1. Ausbildungsjahr, 45 Minuten Unterricht.',ziel:'Auszubildende zwischen 16 und 19 Jahren mit unterschiedlichem Sprachniveau.',format:'Ein kurzer Infotext, 5 Aufgaben mit steigender Schwierigkeit, Lösungen am Ende.',ton:'Klar, in einfacher Sprache.'},
+ handwerk:{rolle:'Du bist Marketing-Profi für Handwerksbetriebe.',aufgabe:'Schreibe einen Instagram-Post für unseren Tag der offenen Tür.',kontext:'Schreinerei in Bayreuth mit 12 Mitarbeitenden, Samstag 10–15 Uhr, mit Werkstatt-Führungen.',ziel:'Familien und Jugendliche auf Ausbildungssuche.',format:'Maximal 5 Sätze, 3 passende Hashtags, Emojis sparsam.',ton:'Herzlich, regional, einladend.'},
+ buero:{rolle:'Du bist Assistenz der Geschäftsführung.',aufgabe:'Fasse die folgenden Besprechungsnotizen zusammen.',kontext:'Monatliches Team-Meeting, die Notizen füge ich unten ein.',ziel:'Mitarbeitende, die nicht dabei waren.',format:'Tabelle mit den Spalten Thema | Entscheidung | Zuständig | Bis wann.',ton:'Sachlich und knapp.'}
+};
+const fk=['rolle','aufgabe','kontext','ziel','format','ton'],fl={rolle:'Rolle',aufgabe:'Aufgabe',kontext:'Kontext',ziel:'Zielgruppe',format:'Format',ton:'Tonfall'};
+const F=k=>document.getElementById('f_'+k),area=document.getElementById('area');
+function placeholders(){const p=presets[area.value];fk.forEach(k=>F(k).placeholder='z. B. '+p[k])}
+function build(){
+ const v={};fk.forEach(k=>v[k]=F(k).value.trim());
+ const L=[];
+ if(v.rolle)L.push(v.rolle);
+ if(v.aufgabe)L.push(v.aufgabe);
+ if(v.kontext)L.push('Kontext: '+v.kontext);
+ if(v.ziel)L.push('Zielgruppe: '+v.ziel);
+ if(v.format)L.push('Format: '+v.format);
+ if(v.ton)L.push('Tonfall: '+v.ton);
+ if(L.length&&document.getElementById('f_rueck').checked)L.push('Wenn dir wichtige Informationen fehlen, stell mir zuerst Rückfragen.');
+ document.getElementById('final').textContent=L.length?L.join('\n\n'):'Fülle die Felder links aus – oder tippe auf „Beispiel einsetzen“.';
+ document.getElementById('check').innerHTML=fk.map(k=>`<span class="${v[k]?'on':''}">${v[k]?'✓':'○'} ${fl[k]}</span>`).join('');
+}
+fk.forEach(k=>F(k).oninput=build);document.getElementById('f_rueck').onchange=build;
+area.onchange=()=>{placeholders();build()};
+document.getElementById('fill').onclick=()=>{const p=presets[area.value];fk.forEach(k=>F(k).value=p[k]);build()};
+document.getElementById('clear').onclick=()=>{fk.forEach(k=>F(k).value='');build()};
+document.getElementById('copy').onclick=()=>{
+ const t=document.getElementById('final').textContent,msg=document.getElementById('copied');
+ const done=()=>{msg.textContent='Kopiert ✓';setTimeout(()=>msg.textContent='',2000)};
+ if(navigator.clipboard)navigator.clipboard.writeText(t).then(done,()=>fallback());else fallback();
+ function fallback(){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done()}catch(e){}ta.remove()}
+};
+placeholders();build();
+</script>
+</body>
+</html>
